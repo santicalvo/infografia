@@ -1,0 +1,53 @@
+const path = require('path');
+//const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const WebpackMd5Hash = require('webpack-md5-hash');
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+
+module.exports = {
+    entry: {main: './src/index.js'},
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: '[name].[chunkhash].js'
+    },
+    module: {
+        //We might not need to use babel for now. Comment to do it
+        rules: [
+            {
+              test: /\.js$/,
+              exclude: /node_modules/,
+              use: {
+                loader: "babel-loader"
+              }
+            },
+            /*{
+              test: /\.css$/,
+              use: ExtractTextPlugin.extract(
+                {
+                  fallback: 'style-loader',
+                  use: ['css-loader']
+                })
+            }*/
+            {
+                test: /\.scss$/,
+                use: ['style-loader', MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader']
+            }
+        ]
+    },
+    plugins: [
+       new MiniCssExtractPlugin({
+            filename: 'style.[contenthash].css',
+        }),
+        new HtmlWebpackPlugin({
+            inject: false,
+            hash: true,
+            template: './src/index.html',
+            filename: 'index.html'
+        }),
+        new WebpackMd5Hash(),
+        new CopyWebpackPlugin([
+            {from:'src/img',to:'img'}
+]),
+    ]
+};
